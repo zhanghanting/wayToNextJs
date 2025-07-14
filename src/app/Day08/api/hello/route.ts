@@ -2,7 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 
 // GET 方法：浏览器访问 /api/hello 返回 JSON
-export async function GET(_req: NextRequest) {
+export async function GET() {
   // 可在此写 DB 查询、鉴权逻辑
   const data = { msg: 'Hello from Day08 API 🎉' }
   return NextResponse.json(data) // 👈 标准化 JSON 输出
