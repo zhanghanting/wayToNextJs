@@ -39,7 +39,7 @@ export default async function LocaleLayout({ children, params }: Props) {
   console.log('  - Set request locale to:', locale);
   
   // 📚 加载当前语言的所有翻译内容
-  // getMessages() 会调用我们在 i18n/request.ts 中定义的配置
+  // getMessages() 会调用我们在 i18n/request.ts 中定义的配置（调用getRequestConfig()）
   const messages = await getMessages();
   console.log('  - Messages loaded in layout');
 

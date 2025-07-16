@@ -24,14 +24,14 @@
 
 ```bash
 # 1. 安装 next-intl
-npm install next-intl@^4.3.4
+pnpm install next-intl@^4.3.4
 
 # 2. 安装类型依赖 (如果使用 TypeScript)
-npm install -D @types/node
+pnpm install -D @types/node
 
 # 3. 如果项目没有 Tailwind CSS
-npm install -D tailwindcss postcss autoprefixer
-npx tailwindcss init -p
+pnpm install -D tailwindcss postcss autoprefixer
+pnpx tailwindcss init -p
 ```
 
 ---
@@ -61,7 +61,7 @@ src/
 └── next.config.ts            # Next.js配置
 ```
 
-### 🔄 正确的数据流程图
+### 🔄 数据流程图
 ```
 🌐 用户访问 /Day11/zh
     ↓
@@ -81,7 +81,7 @@ src/
 ```
 
 ### 🎯 **重要说明**: 
-我们还创建了一个**交互式流程指南** (`public/next-intl-flow-guide.html`)，提供可视化的完整流程演示，包含详细步骤、文件作用说明和交互演示功能。访问该文件可以直观了解整个国际化流程！
+我们还创建了一个**交互式流程指南** (`public/next-intl-flow-guide.html`)，提供可视化的完整流程演示，包含详细步骤、文件作用说明和交互演示功能。访问该文件可以直观了解整个国际化流程,详细文件请从Github仓库中获取。
 
 ---
 

@@ -9,7 +9,7 @@ import { locales, defaultLocale, type Locale } from '@/i18n-config';
  * 作用：根据当前请求的语言，动态加载对应的翻译文件
  * 执行时机：每次使用 useTranslations() 或 getTranslations() 时
  * 
- * 工作原理：
+ * 工作原理：根据locale获取对应展示需要的messages信息
  * 1. 从多个来源获取当前语言代码 (locale)
  * 2. 验证语言代码是否有效
  * 3. 动态导入对应的翻译 JSON 文件
