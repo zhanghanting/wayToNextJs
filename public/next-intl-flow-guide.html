@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌍 Next.js next-intl 完整流程详解</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .content-wrapper {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .tab-container {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .tab {
+            flex: 1;
+            padding: 15px 20px;
+            background: #f8f9fa;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+        }
+        
+        .tab.active {
+            background: white;
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+        
+        .tab:hover {
+            background: #e9ecef;
+        }
+        
+        .tab-content {
+            display: none;
+            padding: 30px;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .flow-diagram {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .step {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+        
+        .step:hover {
+            border-color: #667eea;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+        }
+        
+        .step-number {
+            background: #667eea;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 18px;
+            float: left;
+            margin-right: 15px;
+        }
+        
+        .step-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        
+        .step-file {
+            font-family: 'Courier New', monospace;
+            background: #f8f9fa;
+            color: #e83e8c;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+        
+        .step-description {
+            color: #666;
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+        
+        .code-block {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.5;
+            margin: 10px 0;
+            overflow-x: auto;
+        }
+        
+        .step-data {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 14px;
+            color: #666;
+            border-left: 4px solid #667eea;
+        }
+        
+        .arrow {
+            text-align: center;
+            font-size: 2em;
+            color: #667eea;
+            margin: 10px 0;
+        }
+        
+        .data-flow {
+            display: flex;
+            align-items: center;
+            margin: 10px 20px;
+            padding: 10px;
+            background: #f0f7ff;
+            border-radius: 5px;
+            border: 1px solid #cce7ff;
+        }
+        
+        .data-item {
+            background: #667eea;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 15px;
+            margin: 0 5px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .flow-arrow {
+            color: #667eea;
+            font-size: 1.5em;
+            margin: 0 10px;
+        }
+        
+        .summary-box {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 25px;
+            border-radius: 10px;
+            margin: 30px 0;
+            text-align: center;
+        }
+        
+        .summary-box h3 {
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+        
+        .file-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .file-card {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .file-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 8px 16px rgba(102, 126, 234, 0.2);
+        }
+        
+        .file-card h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+        
+        .file-card .file-path {
+            font-family: 'Courier New', monospace;
+            background: #f8f9fa;
+            padding: 5px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            color: #e83e8c;
+            margin-bottom: 10px;
+        }
+        
+        .interactive-demo {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .demo-button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .demo-button:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+        }
+        
+        .demo-result {
+            margin-top: 20px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            border: 2px solid #e9ecef;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #667eea;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌍 Next.js next-intl 完整流程详解</h1>
+            <p>从请求到响应的完整数据流转可视化指南</p>
+        </div>
+        
+        <div class="content-wrapper">
+            <div class="tab-container">
+                <button class="tab active" onclick="showTab('overview')">🎯 总览流程</button>
+                <button class="tab" onclick="showTab('detailed')">📋 详细步骤</button>
+                <button class="tab" onclick="showTab('files')">📁 文件作用</button>
+                <button class="tab" onclick="showTab('demo')">🔄 交互演示</button>
+            </div>
+            
+            <!-- 总览流程 -->
+            <div id="overview" class="tab-content active">
+                <h2>🎯 完整流程总览</h2>
+                
+                <div class="flow-diagram">
+                    <div class="mermaid">
+                        graph TD
+                            A["🌐 用户访问<br/>/Day11/zh"] --> B["🚪 middleware.ts<br/>拦截请求"]
+                            
+                            B --> C{"检查 URL 语言?"}
+                            C -->|有语言代码 'zh'| D["✅ 提取 locale: 'zh'"]
+                            C -->|无语言代码| E["❌ 重定向到<br/>/Day11/zh"]
+                            
+                            D --> F["📡 设置 Header<br/>x-locale: 'zh'"]
+                            F --> G["🏗️ layout.tsx<br/>渲染开始"]
+                            
+                            G --> H["🔓 await params<br/>获取 { locale: 'zh' }"]
+                            H --> I["🎯 setRequestLocale('zh')<br/>建立上下文"]
+                            I --> J["📞 getMessages()<br/>调用触发"]
+                            
+                            J --> K["🧠 i18n/request.ts<br/>配置执行"]
+                            K --> L["📡 获取 x-locale<br/>从 header"]
+                            L --> M["📂 动态导入<br/>messages/zh.json"]
+                            
+                            M --> N["🎁 返回配置<br/>{ locale: 'zh', messages: {...} }"]
+                            N --> O["🔄 NextIntlClientProvider<br/>提供翻译上下文"]
+                            
+                            O --> P["📄 page.tsx<br/>渲染页面"]
+                            P --> Q["🔍 useTranslations('Home')<br/>获取翻译函数"]
+                            Q --> R["✨ 显示中文内容<br/>欢迎使用 Next.js 国际化！"]
+                            
+                            style A fill:#e1f5fe
+                            style B fill:#fff3e0
+                            style D fill:#e8f5e8
+                            style F fill:#f3e5f5
+                            style K fill:#fff8e1
+                            style M fill:#fce4ec
+                            style R fill:#e8f5e8
+                    </div>
+                </div>
+                
+                <div class="summary-box">
+                    <h3>🔑 核心理解</h3>
+                    <p><strong>middleware.ts</strong> 是门卫，<strong>layout.tsx</strong> 是触发器，<strong>request.ts</strong> 是大脑，<strong>page.tsx</strong> 是执行者</p>
+                    <p>数据流：<span class="highlight">URL → Header → Layout触发 → Config执行 → Messages加载 → Translation显示</span></p>
+                </div>
+            </div>
+            
+            <!-- 详细步骤 -->
+            <div id="detailed" class="tab-content">
+                <h2>📋 详细执行步骤</h2>
+                
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-title">🌐 用户发起请求</div>
+                    <div class="step-description">用户在浏览器中访问 <code>/Day11/zh</code></div>
+                    <div class="step-data">
+                        <strong>请求 URL:</strong> http://localhost:3000/Day11/zh<br>
+                        <strong>请求方法:</strong> GET<br>
+                        <strong>浏览器语言:</strong> zh-CN,zh;q=0.9,en;q=0.8
+                    </div>
+                </div>
+                
+                <div class="arrow">⬇️</div>
+                
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-title">🚪 Middleware 拦截</div>
+                    <div class="step-file">📄 src/middleware.ts</div>
+                    <div class="step-description">第一道防线，检查每个请求的语言信息</div>
+                    <div class="code-block">
+// 解析 URL 路径
+const segments = pathname.split('/') // ['', 'Day11', 'zh']
+const maybeLocale = segments[2]      // 'zh'
+
+// 验证语言代码
+if (locales.includes(maybeLocale)) {
+  // ✅ 有效语言，设置 header
+  response.headers.set('x-locale', 'zh')
+  return response
+}
+                    </div>
+                    <div class="data-flow">
+                        <div class="data-item">pathname: /Day11/zh</div>
+                        <div class="flow-arrow">→</div>
+                        <div class="data-item">segments: ['', 'Day11', 'zh']</div>
+                        <div class="flow-arrow">→</div>
+                        <div class="data-item">x-locale: 'zh'</div>
+                    </div>
+                </div>
+                
+                <div class="arrow">⬇️</div>
+                
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-title">🏗️ Layout 组件渲染开始</div>
+                    <div class="step-file">📄 src/app/Day11/[locale]/layout.tsx</div>
+                    <div class="step-description">页面基础架构开始渲染，处理 Next.js 15 的 Promise 参数</div>
+                    <div class="code-block">
+// Next.js 15 兼容性处理
+const { locale } = await params  // Promise&lt;{locale: string}&gt;
+console.log('locale:', locale)   // 'zh'
+
+// 建立 next-intl 上下文
+setRequestLocale(locale)         // 关键步骤！
+
+// 🔑 这个调用会触发 i18n/request.ts 执行
+const messages = await getMessages()
+                    </div>
+                    <div class="data-flow">
+                        <div class="data-item">params: Promise&lt;{locale: 'zh'}&gt;</div>
+                        <div class="flow-arrow">→</div>
+                        <div class="data-item">locale: 'zh'</div>
+                        <div class="flow-arrow">→</div>
+                        <div class="data-item">setRequestLocale('zh')</div>
+                        <div class="flow-arrow">→</div>
+                        <div class="data-item">getMessages()调用</div>
+                    </div>
+                </div>
+                
+                <div class="arrow">⬇️</div>
+                
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <div class="step-title">🧠 配置中心执行</div>
+                    <div class="step-file">📄 src/i18n/request.ts</div>
+                    <div class="step-description">由 getMessages() 触发执行，智能翻译加载器，多重保险获取语言代码</div>
+                    <div class="code-block">
+export default getRequestConfig(async ({ requestLocale }) => {
+  // 方法1: 从 middleware header 获取 (最可靠)
+  const headersList = await headers()
+  const headerLocale = headersList.get('x-locale') // 'zh'
+  
+  // 方法2: 从 next-intl 内置机制获取 (备用)
+  const requested = await requestLocale            // undefined (Next.js 15 问题)
+  
+  const locale = headerLocale || defaultLocale     // 'zh'
+  
+  // 动态导入翻译文件
+  const messages = await import(`../messages/${locale}.json`)
+  
+  return { locale: 'zh', messages: {...} }
+})
+                    </div>
+                    <div class="data-flow">
+                        <div class="data-item">getMessages()触发</div>
+                        <div class="flow-arrow">→</div>
+                        <div class="data-item">x-locale: 'zh'</div>
+                        <div class="flow-arrow">→</div>
+                        <div class="data-item">locale: 'zh'</div>
+                        <div class="flow-arrow">→</div>
+                        <div class="data-item">messages/zh.json</div>
+                    </div>
+                </div>
+                
+                <div class="arrow">⬇️</div>
+                
+                <div class="step">
+                    <div class="step-number">5</div>
+                    <div class="step-title">📚 翻译文件加载</div>
+                    <div class="step-file">📄 src/messages/zh.json</div>
+                    <div class="step-description">包含所有中文翻译内容的 JSON 文件被动态导入</div>
+                    <div class="code-block">
+{
+  "Home": {
+    "title": "Next.js 国际化演示",
+    "welcome": "欢迎来到我们的全球化平台",
+    "description": "这是一个使用 next-intl 实现的 Next.js 15 国际化演示。我们支持多种语言，为不同地区的用户提供无缝的使用体验。"
+  }
+}
+                    </div>
+                    <div class="step-data">
+                        <strong>文件大小:</strong> ~2KB<br>
+                        <strong>加载方式:</strong> 动态 import (按需加载)<br>
+                        <strong>缓存:</strong> Next.js 自动缓存
+                    </div>
+                </div>
+                
+                <div class="arrow">⬇️</div>
+                
+                <div class="step">
+                    <div class="step-number">6</div>
+                    <div class="step-title">🔄 客户端上下文提供</div>
+                    <div class="step-file">📄 NextIntlClientProvider</div>
+                    <div class="step-description">将服务器端翻译内容传递给客户端组件，完成Layout渲染</div>
+                    <div class="code-block">
+&lt;NextIntlClientProvider messages={messages}&gt;
+  &lt;div className="min-h-screen bg-gray-50"&gt;
+    {children}  {/* page.tsx 将在这里渲染 */}
+  &lt;/div&gt;
+&lt;/NextIntlClientProvider&gt;
+                    </div>
+                    <div class="step-data">
+                        <strong>作用:</strong> 桥接服务器端和客户端<br>
+                        <strong>提供:</strong> useTranslations() hook<br>
+                        <strong>确保:</strong> 水合一致性
+                    </div>
+                </div>
+                
+                <div class="arrow">⬇️</div>
+                
+                <div class="step">
+                    <div class="step-number">7</div>
+                    <div class="step-title">📄 页面组件渲染</div>
+                    <div class="step-file">📄 src/app/Day11/[locale]/page.tsx</div>
+                    <div class="step-description">实际显示翻译内容的页面组件开始渲染</div>
+                    <div class="code-block">
+export default function Day11Page() {
+  // 获取翻译函数，指定命名空间
+  const t = useTranslations('Home')
+  
+  return (
+    &lt;section&gt;
+      &lt;h1&gt;{t('title')}&lt;/h1&gt;            {/* Next.js 国际化演示 */}
+      &lt;h2&gt;{t('welcome')}&lt;/h2&gt;          {/* 欢迎来到我们的全球化平台 */}
+      &lt;p&gt;{t('description')}&lt;/p&gt;       {/* 这是一个使用 next-intl... */}
+    &lt;/section&gt;
+  )
+}
+                    </div>
+                    <div class="data-flow">
+                        <div class="data-item">useTranslations('Home')</div>
+                        <div class="flow-arrow">→</div>
+                        <div class="data-item">t('title')</div>
+                        <div class="flow-arrow">→</div>
+                        <div class="data-item">messages.Home.title</div>
+                        <div class="flow-arrow">→</div>
+                        <div class="data-item">"Next.js 国际化演示"</div>
+                    </div>
+                </div>
+                
+                <div class="arrow">⬇️</div>
+                
+                <div class="step">
+                    <div class="step-number">8</div>
+                    <div class="step-title">✨ 最终渲染结果</div>
+                    <div class="step-description">用户看到完整的中文页面</div>
+                    <div class="step-data">
+                        <strong>页面标题:</strong> Next.js 国际化演示<br>
+                        <strong>当前语言:</strong> zh<br>
+                        <strong>主要内容:</strong> 欢迎来到我们的全球化平台<br>
+                        <strong>描述内容:</strong> 使用 next-intl 实现的国际化演示<br>
+                        <strong>响应时间:</strong> ~100ms (服务器端渲染)
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 文件作用 -->
+            <div id="files" class="tab-content">
+                <h2>📁 核心文件详细作用</h2>
+                
+                <div class="file-grid">
+                    <div class="file-card">
+                        <h4>🚪 middleware.ts</h4>
+                        <div class="file-path">src/middleware.ts</div>
+                        <p><strong>角色:</strong> 国际化门卫</p>
+                        <p><strong>职责:</strong></p>
+                        <ul>
+                            <li>拦截所有请求</li>
+                            <li>检查 URL 中的语言代码</li>
+                            <li>设置 x-locale header</li>
+                            <li>无语言时自动重定向</li>
+                        </ul>
+                        <p><strong>执行时机:</strong> 页面渲染前</p>
+                        <p><strong>关键代码:</strong></p>
+                        <div class="code-block">
+response.headers.set('x-locale', locale)
+                        </div>
+                    </div>
+                    
+                    <div class="file-card">
+                        <h4>🏗️ layout.tsx</h4>
+                        <div class="file-path">src/app/Day11/[locale]/layout.tsx</div>
+                        <p><strong>角色:</strong> 国际化触发器</p>
+                        <p><strong>职责:</strong></p>
+                        <ul>
+                            <li>解析 Promise 类型的 params</li>
+                            <li>调用 setRequestLocale()</li>
+                            <li>触发 getMessages() 执行</li>
+                            <li>提供 NextIntlClientProvider</li>
+                        </ul>
+                        <p><strong>执行时机:</strong> 组件渲染开始</p>
+                        <p><strong>关键代码:</strong></p>
+                        <div class="code-block">
+const messages = await getMessages()
+                        </div>
+                    </div>
+                    
+                    <div class="file-card">
+                        <h4>🧠 i18n/request.ts</h4>
+                        <div class="file-path">src/i18n/request.ts</div>
+                        <p><strong>角色:</strong> 国际化大脑</p>
+                        <p><strong>职责:</strong></p>
+                        <ul>
+                            <li>被 getMessages() 触发执行</li>
+                            <li>从 header 获取语言信息</li>
+                            <li>动态导入翻译文件</li>
+                            <li>返回配置对象</li>
+                        </ul>
+                        <p><strong>执行时机:</strong> Layout 调用 getMessages() 时</p>
+                        <p><strong>关键代码:</strong></p>
+                        <div class="code-block">
+const messages = await import(`../messages/${locale}.json`)
+                        </div>
+                    </div>
+                    
+                    <div class="file-card">
+                        <h4>📄 page.tsx</h4>
+                        <div class="file-path">src/app/Day11/[locale]/page.tsx</div>
+                        <p><strong>角色:</strong> 国际化执行者</p>
+                        <p><strong>职责:</strong></p>
+                        <ul>
+                            <li>使用 useTranslations() hook</li>
+                            <li>获取翻译函数</li>
+                            <li>渲染翻译内容</li>
+                            <li>显示最终结果</li>
+                        </ul>
+                        <p><strong>执行时机:</strong> Layout 渲染完成后</p>
+                        <p><strong>关键代码:</strong></p>
+                        <div class="code-block">
+const t = useTranslations('Home')
+                        </div>
+                    </div>
+                    
+                    <div class="file-card">
+                        <h4>📁 messages/zh.json</h4>
+                        <div class="file-path">src/messages/zh.json</div>
+                        <p><strong>角色:</strong> 国际化数据源</p>
+                        <p><strong>职责:</strong></p>
+                        <ul>
+                            <li>存储中文翻译内容</li>
+                            <li>按命名空间组织</li>
+                            <li>支持嵌套结构</li>
+                            <li>按需动态加载</li>
+                        </ul>
+                        <p><strong>执行时机:</strong> request.ts 动态导入时</p>
+                        <p><strong>关键特性:</strong></p>
+                        <div class="code-block">
+{
+  "Home": {
+    "title": "...",
+    "welcome": "..."
+  }
+}
+                        </div>
+                    </div>
+                    
+                    <div class="file-card">
+                        <h4>🔄 LanguageSwitcher.tsx</h4>
+                        <div class="file-path">src/app/Day11/LanguageSwitcher.tsx</div>
+                        <p><strong>角色:</strong> 国际化控制器</p>
+                        <p><strong>职责:</strong></p>
+                        <ul>
+                            <li>提供语言切换界面</li>
+                            <li>检测当前语言</li>
+                            <li>执行路由跳转</li>
+                            <li>保持页面状态</li>
+                        </ul>
+                        <p><strong>执行时机:</strong> 用户交互时</p>
+                        <p><strong>关键代码:</strong></p>
+                        <div class="code-block">
+router.push(newPath)
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 交互演示 -->
+            <div id="demo" class="tab-content">
+                <h2>🔄 交互演示</h2>
+                
+                <div class="interactive-demo">
+                    <h3>模拟 next-intl 执行流程</h3>
+                    <p>点击按钮体验完整的国际化流程</p>
+                    
+                    <button class="demo-button" onclick="simulateFlow('zh')">🇨🇳 访问中文页面</button>
+                    <button class="demo-button" onclick="simulateFlow('en')">🇺🇸 访问英文页面</button>
+                    <button class="demo-button" onclick="simulateFlow('invalid')">❌ 访问无效语言</button>
+                    
+                    <div id="demo-result" class="demo-result">
+                        点击上方按钮开始演示
+                    </div>
+                </div>
+                
+                <div class="step">
+                    <div class="step-title">📊 性能分析</div>
+                    <div class="step-description">不同阶段的性能表现</div>
+                    <div class="step-data">
+                        <strong>Middleware 执行:</strong> ~1-2ms<br>
+                        <strong>Layout 渲染:</strong> ~10-20ms<br>
+                        <strong>Config 执行:</strong> ~5-10ms<br>
+                        <strong>翻译文件加载:</strong> ~3-5ms<br>
+                        <strong>Page 渲染:</strong> ~10-15ms<br>
+                        <strong>总计:</strong> ~30-50ms
+                    </div>
+                </div>
+                
+                <div class="step">
+                    <div class="step-title">🎯 优化建议</div>
+                    <div class="step-description">提升国际化性能的关键点</div>
+                    <ul>
+                        <li><strong>翻译文件缓存:</strong> 使用 React cache() 避免重复加载</li>
+                        <li><strong>按需加载:</strong> 只导入当前语言的翻译文件</li>
+                        <li><strong>预加载:</strong> 在用户切换前预加载常用语言</li>
+                        <li><strong>压缩优化:</strong> 压缩 JSON 文件减少传输大小</li>
+                        <li><strong>CDN 部署:</strong> 将翻译文件部署到全球 CDN</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 初始化 Mermaid
+        mermaid.initialize({ 
+            startOnLoad: true,
+            theme: 'default',
+            flowchart: {
+                useMaxWidth: true,
+                htmlLabels: true
+            }
+        });
+        
+        // Tab 切换功能
+        function showTab(tabName) {
+            // 隐藏所有内容
+            const contents = document.querySelectorAll('.tab-content');
+            contents.forEach(content => content.classList.remove('active'));
+            
+            // 移除所有激活状态
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            
+            // 显示选中的内容
+            document.getElementById(tabName).classList.add('active');
+            
+            // 激活选中的标签
+            event.target.classList.add('active');
+        }
+        
+        // 模拟流程演示
+        function simulateFlow(locale) {
+            const resultDiv = document.getElementById('demo-result');
+            
+            if (locale === 'zh') {
+                resultDiv.innerHTML = `
+                    <div style="text-align: left;">
+                        <div>✅ 1. URL: /Day11/zh</div>
+                        <div>✅ 2. middleware.ts: 设置 x-locale: 'zh'</div>
+                        <div>✅ 3. layout.tsx: 开始渲染</div>
+                        <div>✅ 4. getMessages(): 触发配置</div>
+                        <div>✅ 5. request.ts: 加载 messages/zh.json</div>
+                        <div>✅ 6. Provider: 提供翻译上下文</div>
+                        <div>✅ 7. page.tsx: 渲染中文内容</div>
+                        <div style="color: #28a745; font-weight: bold; margin-top: 10px;">
+                            🎉 结果: "Next.js 国际化演示"
+                        </div>
+                    </div>
+                `;
+            } else if (locale === 'en') {
+                resultDiv.innerHTML = `
+                    <div style="text-align: left;">
+                        <div>✅ 1. URL: /Day11/en</div>
+                        <div>✅ 2. middleware.ts: 设置 x-locale: 'en'</div>
+                        <div>✅ 3. layout.tsx: 开始渲染</div>
+                        <div>✅ 4. getMessages(): 触发配置</div>
+                        <div>✅ 5. request.ts: 加载 messages/en.json</div>
+                        <div>✅ 6. Provider: 提供翻译上下文</div>
+                        <div>✅ 7. page.tsx: 渲染英文内容</div>
+                        <div style="color: #28a745; font-weight: bold; margin-top: 10px;">
+                            🎉 结果: "Next.js Internationalization Demo"
+                        </div>
+                    </div>
+                `;
+            } else {
+                resultDiv.innerHTML = `
+                    <div style="text-align: left;">
+                        <div>❌ 1. URL: /Day11/invalid</div>
+                        <div>❌ 2. middleware.ts: 无效语言代码</div>
+                        <div>🔄 3. 重定向到: /Day11/zh</div>
+                        <div>✅ 4. 重新执行正常流程...</div>
+                        <div style="color: #dc3545; font-weight: bold; margin-top: 10px;">
+                            ⚠️ 结果: 自动重定向到默认语言
+                        </div>
+                    </div>
+                `;
+            }
+        }
+    </script>
+</body>
+</html> 

@@ -1,0 +1,65 @@
+{
+  "Home": {
+    "welcome": "欢迎使用 Next.js 国际化！",
+    "feature": {
+      "ssr": "✅ 服务端渲染支持",
+      "routing": "🚀 动态路由与语言支持",
+      "switch": "🌐 语言切换功能"
+    }
+  },
+  "Demo": {
+    "title": "🎮 交互式客户端组件演示",
+    "button": "点击我",
+    "clickCount": "你已经点击了 {count} 次！",
+    "explanation": {
+      "title": "💡 NextIntlClientProvider 工作原理：",
+      "point1": "这是使用 useTranslations() 的客户端组件",
+      "point2": "翻译数据来自 NextIntlClientProvider",
+      "point3": "交互功能可以实时使用翻译"
+    }
+  },
+  "ProductDemo": {
+    "title": "🛍️ 数据库翻译命名空间演示",
+    "explanation": "此演示展示如何使用不同的命名空间：静态UI翻译 vs 动态数据库翻译。",
+    "selectedProduct": "选中产品详情",
+    "technicalNote": {
+      "title": "🔧 技术实现原理",
+      "point1": "ProductDemo命名空间：来自JSON文件的静态翻译",
+      "point2": "Products命名空间：来自数据库的动态翻译（模拟）",
+      "point3": "Categories命名空间：另一个数据库命名空间示例",
+      "point4": "所有都使用相同的useTranslations() API - 无缝集成！"
+    }
+  },
+  "Products": {
+    "product_1": {
+      "name": "游戏笔记本专业版",
+      "description": "专为游戏爱好者设计的高性能笔记本电脑",
+      "fullDescription": "专业游戏笔记本，配备RTX 4080、32GB内存和1TB固态硬盘"
+    },
+    "product_2": {
+      "name": "人体工学办公鼠标",
+      "description": "适合办公提升生产力的舒适无线鼠标",
+      "fullDescription": "无线人体工学鼠标，1600 DPI精度，18个月电池续航"
+    },
+    "product_3": {
+      "name": "Next.js 完全指南",
+      "description": "涵盖Next.js开发的综合性书籍",
+      "fullDescription": "Next.js 15完整指南，包含App Router、服务器组件和国际化功能"
+    },
+    "common": {
+      "name": "产品名称",
+      "description": "产品描述",
+      "fullDescription": "详细描述",
+      "price": "价格",
+      "stock": "库存",
+      "addToCart": "加入购物车"
+    }
+  },
+  "Categories": {
+    "label": "分类",
+    "electronics": "电子产品",
+    "books": "图书",
+    "clothing": "服装",
+    "home": "家居园艺"
+  }
+} 

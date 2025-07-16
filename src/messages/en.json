@@ -1,0 +1,65 @@
+{
+  "Home": {
+    "welcome": "Welcome to Next.js Internationalization!",
+    "feature": {
+      "ssr": "✅ Server-Side Rendering Support",
+      "routing": "🚀 Dynamic Routing with Locale",
+      "switch": "🌐 Language Switching"
+    }
+  },
+  "Demo": {
+    "title": "🎮 Interactive Client Component Demo",
+    "button": "Click Me",
+    "clickCount": "You've clicked {count} times!",
+    "explanation": {
+      "title": "💡 How NextIntlClientProvider Works:",
+      "point1": "This is a client component using useTranslations()",
+      "point2": "Translations come from NextIntlClientProvider",
+      "point3": "Interactive features work with real-time translation"
+    }
+  },
+  "ProductDemo": {
+    "title": "🛍️ Database Translation Namespace Demo",
+    "explanation": "This demo shows how to use different namespaces: static UI translations vs dynamic database translations.",
+    "selectedProduct": "Selected Product Details",
+    "technicalNote": {
+      "title": "🔧 Technical Implementation",
+      "point1": "ProductDemo namespace: Static translations from JSON file",
+      "point2": "Products namespace: Dynamic translations from database (simulated)",
+      "point3": "Categories namespace: Another database namespace example",
+      "point4": "All use the same useTranslations() API - seamless integration!"
+    }
+  },
+  "Products": {
+    "product_1": {
+      "name": "Gaming Laptop Pro",
+      "description": "High-performance laptop designed for gaming enthusiasts",
+      "fullDescription": "Professional gaming laptop with RTX 4080, 32GB RAM, and 1TB SSD storage"
+    },
+    "product_2": {
+      "name": "Ergonomic Office Mouse",
+      "description": "Comfortable wireless mouse for office productivity",
+      "fullDescription": "Wireless ergonomic mouse with 1600 DPI precision and 18-month battery life"
+    },
+    "product_3": {
+      "name": "Next.js Complete Guide",
+      "description": "Comprehensive book covering Next.js development",
+      "fullDescription": "Complete guide to Next.js 15 including App Router, Server Components, and international features"
+    },
+    "common": {
+      "name": "Product Name",
+      "description": "Description",
+      "fullDescription": "Full Description",
+      "price": "Price",
+      "stock": "Stock",
+      "addToCart": "Add to Cart"
+    }
+  },
+  "Categories": {
+    "label": "Category",
+    "electronics": "Electronics",
+    "books": "Books",
+    "clothing": "Clothing",
+    "home": "Home & Garden"
+  }
+} 
